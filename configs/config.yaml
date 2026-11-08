@@ -1,0 +1,56 @@
+# N4 车辆路径跟踪控制器仿真对比 配置
+# 环境: flsoh-py312 (numpy/scipy/matplotlib/casadi)
+
+vehicle:
+  wheelbase: 2.9        # 轴距 L [m]（Kong 2015 / PythonRobotics 一致）
+  max_steer: 0.7854     # 前轮转角上限 [rad] (45°)
+  max_steer_rate: 0.5236 # 转角速率上限 [rad/s] (30°/s)
+  dt: 0.1               # 仿真步长 [s]
+
+speed_levels:
+  low: 5.5556           # 20 km/h [m/s]
+  high: 16.6667         # 60 km/h [m/s]
+
+paths:
+  double_lane_change:
+    # ISO 3888-1 风格双移线（坐标为世界系 x, y [m]）
+    segments:
+      - {x: 0.0,   y: 0.0}
+      - {x: 35.0,  y: 0.0}
+      - {x: 50.0,  y: 3.5}
+      - {x: 75.0,  y: 3.5}
+      - {x: 90.0,  y: 0.0}
+      - {x: 130.0, y: 0.0}
+  circle:
+    radius: 30.0
+    arc_deg: 270.0
+    center_x: 0.0
+    center_y: 30.0
+
+controllers:
+  pure_pursuit:
+    k: 0.1              # look-forward gain
+    lfc: 2.0            # base look-ahead [m]
+  stanley:
+    k: 0.5              # cross-track gain
+    k_soft: 1.0         # softening speed [m/s]
+  mpc:
+    horizon: 5          # 预测步数 N
+    q: [1.0, 1.0, 0.5, 0.5]   # 状态权重 [x, y, v, yaw]
+    r: [0.01, 0.01]           # 输入权重 [accel, steer]
+    rd: [0.01, 1.0]           # 输入增量权重
+    max_accel: 3.0            # [m/s^2]
+    max_decel: -5.0
+
+sim:
+  init_x: 0.0
+  init_y: 0.0
+  init_yaw: 0.0
+  settle_s: 2.0        # 起始对齐段（不计入指标）
+
+metrics:
+  lateral_tol: 0.05     # 收敛判定阈值 [m]
+
+output:
+  results_dir: results
+  figures_dir: figures
