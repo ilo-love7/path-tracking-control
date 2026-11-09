@@ -76,14 +76,29 @@ class Stanley:
     k_soft: float = 1.0
     max_steer: float = 0.7854
     wheelbase: float = 2.9
+    curvature_ff: bool = False  # v1.1: 曲率前馈 atan(L·κ) + 后轴误差口径
 
     def compute(self, state: VehicleState, path: Path, target_speed: float,
                 ref_idx: int, dt: float = 0.1):
-        # 前轴位置（PythonRobotics: fx = x + L*cos(yaw)）
+        if self.curvature_ff:
+            # FF 版：误差取后轴（与 e_lat 指标同口径）+ 曲率前馈。
+            # 实测前轴误差 + FF 会与航向项双重计入曲率而过转向（环形发散至 1.2 m），
+            # 后轴口径下恒曲率稳态误差 → ~0。
+            idx = nearest_index(path, state.x, state.y, hint=ref_idx)
+            dx, dy = state.x - path.x[idx], state.y - path.y[idx]
+            e = dx * np.sin(state.yaw) - dy * np.cos(state.yaw)
+            heading_err = path.yaw[idx] - state.yaw
+            heading_err = np.arctan2(np.sin(heading_err), np.cos(heading_err))
+            steer = heading_err + np.arctan2(self.k * e, state.v + self.k_soft)
+            steer += np.arctan(self.wheelbase * path.curvature[idx])
+            steer = float(np.clip(steer, -self.max_steer, self.max_steer))
+            accel = 1.0 * (target_speed - state.v)
+            return accel, steer, idx, {"e_front": e, "heading_err": heading_err}
+        # 原版（PythonRobotics 对齐）：前轴误差
         fx = state.x + self.wheelbase * np.cos(state.yaw)
         fy = state.y + self.wheelbase * np.sin(state.yaw)
         idx = nearest_index(path, fx, fy, hint=ref_idx)
-        # PythonRobotics 符号约定：error = (车-路)·[sin(yaw), -cos(yaw)]
+        # 符号约定：error = (车-路)·[sin(yaw), -cos(yaw)]
         #   车在路径左侧 → error < 0 → 向右打舵
         dx, dy = fx - path.x[idx], fy - path.y[idx]
         e_front = dx * np.sin(state.yaw) - dy * np.cos(state.yaw)
@@ -109,18 +124,29 @@ class MPCController:
     max_accel: float = 3.0
     max_decel: float = -5.0
     dt: float = 0.1
+    # v1.1: 速度自适应 horizon —— 预瞄距离恒定 ~preview_m，N 随速度反向调整
+    horizon_mode: str = "fixed"   # "fixed" | "adaptive"
+    preview_m: float = 30.0       # 自适应模式目标预瞄距离 [m]
+    horizon_min: int = 5
+    horizon_max: int = 20
+    term_w: float = 5.0           # v1.1: 终端代价倍率（消融显示 0 往往更优）
 
-    _solver: object = field(default=None, repr=False)
+    _solvers: dict = field(default_factory=dict, repr=False)   # N -> (solver, bounds)
     _last_u: np.ndarray = field(default=None, repr=False)
 
     def __post_init__(self):
         _ensure_casadi_dll_path()
-        self._build_solver()
 
-    def _build_solver(self):
+    def _select_horizon(self, v: float) -> int:
+        if self.horizon_mode != "adaptive":
+            return int(self.horizon)
+        n = int(np.ceil(self.preview_m / (max(abs(v), 1.0) * self.dt)))
+        return int(np.clip(n, self.horizon_min, self.horizon_max))
+
+    def _build_solver(self, N: int):
+        """按 horizon 长度构建并缓存 NLP 求解器。"""
         import casadi as ca
 
-        N = self.horizon
         dt, L = self.dt, self.wheelbase
         nx, nu = 4, 2  # [x,y,v,yaw], [accel, steer]
 
@@ -170,7 +196,7 @@ class MPCController:
             g.append(st_next - st_pred)
 
         ref_N = P[n_states + N * n_states: n_states + (N + 1) * n_states]
-        obj += ca.mtimes([(X[:, N] - ref_N).T, Q * 5, (X[:, N] - ref_N)])
+        obj += ca.mtimes([(X[:, N] - ref_N).T, Q * self.term_w, (X[:, N] - ref_N)])
 
         opt_vars = ca.vertcat(ca.reshape(X, -1, 1), ca.reshape(U, -1, 1))
         opt_params = P
@@ -182,40 +208,41 @@ class MPCController:
             "ipopt.acceptable_tol": 1e-3, "ipopt.mu_init": 0.1,
         }
         nlp = {"x": opt_vars, "f": obj, "g": g_vec, "p": opt_params}
-        self._solver = ca.nlpsol("solver", "ipopt", nlp, opts)
+        solver = ca.nlpsol("solver", "ipopt", nlp, opts)
 
-        self._nx, self._nu, self._N = n_states, n_controls, N
-        self._lbx = []
-        self._ubx = []
+        lbx = []
+        ubx = []
         for _ in range(N + 1):
-            self._lbx += [-ca.inf] * nx
-            self._ubx += [ca.inf] * nx
+            lbx += [-ca.inf] * nx
+            ubx += [ca.inf] * nx
         for _ in range(N):
-            self._lbx += [self.max_decel, -self.max_steer]
-            self._ubx += [self.max_accel, self.max_steer]
-        self._lbg = [0.0] * ((N + 1) * nx)
-        self._ubg = [0.0] * ((N + 1) * nx)
+            lbx += [self.max_decel, -self.max_steer]
+            ubx += [self.max_accel, self.max_steer]
+        lbg = [0.0] * ((N + 1) * nx)
+        ubg = [0.0] * ((N + 1) * nx)
 
-    def _rollout(self, x0: np.ndarray, u_seq: np.ndarray) -> np.ndarray:
+        self._solvers[N] = (solver, lbx, ubx, lbg, ubg, n_states, n_controls)
+
+    def _rollout(self, x0: np.ndarray, u_seq: np.ndarray, N: int) -> np.ndarray:
         """用给定输入序列前向积分，生成动态可行的 X 初值 (nx, N+1)。"""
-        N = self._N
         dt, L = self.dt, self.wheelbase
-        X = np.zeros((self._nx, N + 1))
+        X = np.zeros((4, N + 1))
         X[:, 0] = x0
         s = x0.copy()
         for k in range(N):
             a, d = float(u_seq[0, k]), float(u_seq[1, k])
             x_, y_, v_, yaw_ = s
-            k1 = np.array([v_ * np.cos(yaw_), v_ * np.sin(yaw_), v_ * np.tan(d) / L, a])
+            # 状态序 [x, y, v, yaw] → 导数 [ẋ, ẏ, v̇, ψ̇]
+            k1 = np.array([v_ * np.cos(yaw_), v_ * np.sin(yaw_), a, v_ * np.tan(d) / L])
             s2 = s + dt / 2 * k1
             k2 = np.array([s2[2] * np.cos(s2[3]), s2[2] * np.sin(s2[3]),
-                           s2[2] * np.tan(d) / L, a])
+                           a, s2[2] * np.tan(d) / L])
             s3 = s + dt / 2 * k2
             k3 = np.array([s3[2] * np.cos(s3[3]), s3[2] * np.sin(s3[3]),
-                           s3[2] * np.tan(d) / L, a])
+                           a, s3[2] * np.tan(d) / L])
             s4 = s + dt * k3
             k4 = np.array([s4[2] * np.cos(s4[3]), s4[2] * np.sin(s4[3]),
-                           s4[2] * np.tan(d) / L, a])
+                           a, s4[2] * np.tan(d) / L])
             s = s + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
             X[:, k + 1] = s
         return X
@@ -223,8 +250,10 @@ class MPCController:
     def compute(self, state: VehicleState, path: Path, target_speed: float,
                 ref_idx: int, dt: float = 0.1):
         t0 = time.perf_counter()
-        N = self._N
-        nx, nu = self._nx, self._nu
+        N = self._select_horizon(state.v)
+        if N not in self._solvers:
+            self._build_solver(N)
+        solver, lbx, ubx, lbg, ubg, nx, nu = self._solvers[N]
         # 先取最近点索引，再以其弧长为参考起点（不能直接用 ref_idx，那只是 hint）
         idx = nearest_index(path, state.x, state.y, hint=ref_idx)
         s0 = path.s[idx]
@@ -248,11 +277,10 @@ class MPCController:
             self._last_u.reshape(-1, 1), (1, N))
         u_init[0] = np.clip(u_init[0], self.max_decel, self.max_accel)
         u_init[1] = np.clip(u_init[1], -self.max_steer, self.max_steer)
-        x_init = self._rollout(x0, u_init)
+        x_init = self._rollout(x0, u_init, N)
         w0 = np.concatenate([x_init.flatten(order="F"), u_init.flatten(order="F")])
 
-        sol = self._solver(x0=w0, p=p, lbx=self._lbx, ubx=self._ubx,
-                           lbg=self._lbg, ubg=self._ubg)
+        sol = solver(x0=w0, p=p, lbx=lbx, ubx=ubx, lbg=lbg, ubg=ubg)
         w = np.array(sol["x"]).flatten()
         u0 = w[(N + 1) * nx:(N + 1) * nx + nu].copy()  # 列主序下前 nu 个即 u_0
         u0[0] = float(np.clip(u0[0], self.max_decel, self.max_accel))
@@ -261,11 +289,11 @@ class MPCController:
 
         idx = nearest_index(path, state.x, state.y, hint=ref_idx)
         solve_ms = (time.perf_counter() - t0) * 1000.0
-        return float(u0[0]), float(u0[1]), idx, {"solve_ms": solve_ms}
+        return float(u0[0]), float(u0[1]), idx, {"solve_ms": solve_ms, "N": N}
 
 
 def make_controller(name: str, cfg: dict, vehicle_cfg: dict):
-    """工厂：name ∈ {pure_pursuit, stanley, mpc}。"""
+    """工厂：name ∈ {pure_pursuit, stanley, stanley_ff, mpc, mpc_adaptive}。"""
     max_steer = float(vehicle_cfg["max_steer"])
     wb = float(vehicle_cfg["wheelbase"])
     dt = float(vehicle_cfg["dt"])
@@ -273,18 +301,26 @@ def make_controller(name: str, cfg: dict, vehicle_cfg: dict):
         p = cfg["pure_pursuit"]
         return PurePursuit(wheelbase=wb, k=float(p["k"]), lfc=float(p["lfc"]),
                            max_steer=max_steer), "PurePursuit"
-    if name == "stanley":
+    if name in ("stanley", "stanley_ff"):
         p = cfg["stanley"]
         return Stanley(k=float(p["k"]), k_soft=float(p["k_soft"]),
-                       max_steer=max_steer, wheelbase=wb), "Stanley"
-    if name == "mpc":
+                       max_steer=max_steer, wheelbase=wb,
+                       curvature_ff=(name == "stanley_ff")), \
+            ("Stanley+FF" if name == "stanley_ff" else "Stanley")
+    if name in ("mpc", "mpc_adaptive"):
         p = cfg["mpc"]
-        return MPCController(
+        ctrl = MPCController(
             wheelbase=wb, horizon=int(p["horizon"]),
             q=list(p["q"]), r=list(p["r"]), rd=list(p["rd"]),
             max_steer=max_steer,
             max_steer_rate=float(vehicle_cfg["max_steer_rate"]),
             max_accel=float(p["max_accel"]), max_decel=float(p["max_decel"]),
             dt=dt,
-        ), "MPC"
+            horizon_mode=("adaptive" if name == "mpc_adaptive" else "fixed"),
+            preview_m=float(p.get("preview_m", 30.0)),
+            horizon_min=int(p.get("horizon_min", 5)),
+            horizon_max=int(p.get("horizon_max", 20)),
+            term_w=float(p.get("term_w", 5.0)),
+        )
+        return ctrl, ("MPC-A" if name == "mpc_adaptive" else "MPC")
     raise ValueError(f"未知控制器: {name}")

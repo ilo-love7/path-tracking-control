@@ -26,6 +26,19 @@ paths:
     arc_deg: 270.0
     center_x: 0.0
     center_y: 30.0
+  clothoid_s:            # v1.1 变曲率 S 弯（回旋线过渡）
+    kappa_max: 0.05      # 峰值曲率 1/20 m^-1
+    yaw_up: 0.5          # 第一段航向摆角 [rad]
+    yaw_down: 0.7        # 第二段反向摆角 [rad]
+    straight_len: 15.0   # 直线段长 [m]
+
+dynamic_vehicle:         # v1.1 动力学自行车（线性轮胎）
+  mass: 1573.0           # 整车质量 [kg]（Kong 2015 量级）
+  iz: 2500.0             # 横摆转动惯量 [kg·m²]
+  lf: 1.2                # 前轴距质心 [m]
+  lr: 1.7                # 后轴距质心 [m]
+  cf: 80000.0            # 前轮侧偏刚度 [N/rad]
+  cr: 80000.0            # 后轮侧偏刚度 [N/rad]
 
 controllers:
   pure_pursuit:
@@ -35,12 +48,16 @@ controllers:
     k: 0.5              # cross-track gain
     k_soft: 1.0         # softening speed [m/s]
   mpc:
-    horizon: 5          # 预测步数 N
+    horizon: 5          # 预测步数 N（fixed 模式）
     q: [1.0, 1.0, 0.5, 0.5]   # 状态权重 [x, y, v, yaw]
     r: [0.01, 0.01]           # 输入权重 [accel, steer]
     rd: [0.01, 1.0]           # 输入增量权重
     max_accel: 3.0            # [m/s^2]
     max_decel: -5.0
+    preview_m: 30.0           # v1.1 自适应 horizon 目标预瞄距离 [m]
+    horizon_min: 5
+    horizon_max: 20
+    term_w: 5.0               # v1.1 终端代价倍率（0=关闭，消融实验中往往更优）
 
 sim:
   init_x: 0.0

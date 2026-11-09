@@ -1,4 +1,4 @@
-"""参考路径生成：双移线 / 环形 / 三次样条平滑。"""
+"""参考路径生成：双移线 / 环形 / 变曲率 S 弯（v1.1）/ 三次样条平滑。"""
 
 from __future__ import annotations
 
@@ -139,6 +139,50 @@ def make_circle(radius: float = 30.0, arc_deg: float = 270.0,
     return Path(px, py, yaw, curv, s)
 
 
+def make_clothoid_s_curve(kappa_max: float = 0.05, yaw_up: float = 0.5,
+                          yaw_down: float = 0.7, straight_len: float = 15.0,
+                          ds: float = 0.5) -> Path:
+    """变曲率 S 弯（回旋线过渡，三段三角 κ 剖面）。
+
+    κ(s) 分段线性（clothoid 过渡）：+κm 转向 → −κm 回转 → +κm 回正，
+    航向 0 → +yaw_up → −yaw_down → 0，y 先正后负（S 形摆动）。
+    用于考察控制器对连续变曲率的跟踪（区别于恒曲率环形）。
+    """
+    km = float(kappa_max)
+    # 每个三角 bump：κ 从 0 线性到 ±km 再回 0，航向净变化 = km*L/2
+    l1 = 2.0 * yaw_up / km
+    l2 = 2.0 * (yaw_up + yaw_down) / km
+    l3 = 2.0 * yaw_down / km
+    segs = [
+        (straight_len, 0.0, 0.0),
+        (l1 / 2.0, 0.0, km),
+        (l1 / 2.0, km, 0.0),
+        (l2 / 2.0, 0.0, -km),
+        (l2 / 2.0, -km, 0.0),
+        (l3 / 2.0, 0.0, km),
+        (l3 / 2.0, km, 0.0),
+        (straight_len, 0.0, 0.0),
+    ]
+    s_list = [0.0]
+    k_list = [0.0]
+    s_cur = 0.0
+    for length, k0, k1 in segs:
+        n = max(int(round(length / ds)), 1)
+        for i in range(1, n + 1):
+            frac = i / n
+            s_cur += length / n
+            s_list.append(s_cur)
+            k_list.append(k0 + (k1 - k0) * frac)
+    s_arr = np.array(s_list)
+    kappa = np.array(k_list)
+    # 梯形积分 yaw = ∫κ ds，x = ∫cos(yaw) ds，y = ∫sin(yaw) ds
+    ds_arr = np.diff(s_arr)
+    yaw = np.concatenate([[0.0], np.cumsum(0.5 * (kappa[1:] + kappa[:-1]) * ds_arr)])
+    x = np.concatenate([[0.0], np.cumsum(0.5 * (np.cos(yaw[1:]) + np.cos(yaw[:-1])) * ds_arr)])
+    y = np.concatenate([[0.0], np.cumsum(0.5 * (np.sin(yaw[1:]) + np.sin(yaw[:-1])) * ds_arr)])
+    return Path(x, y, yaw, kappa, s_arr)
+
+
 def build_path(name: str, path_cfg: dict) -> Path:
     if name == "double_lane_change":
         return make_double_lane_change(path_cfg["segments"])
@@ -148,6 +192,13 @@ def build_path(name: str, path_cfg: dict) -> Path:
             arc_deg=float(path_cfg["arc_deg"]),
             center_x=float(path_cfg["center_x"]),
             center_y=float(path_cfg["center_y"]),
+        )
+    if name == "clothoid_s":
+        return make_clothoid_s_curve(
+            kappa_max=float(path_cfg.get("kappa_max", 0.05)),
+            yaw_up=float(path_cfg.get("yaw_up", 0.5)),
+            yaw_down=float(path_cfg.get("yaw_down", 0.7)),
+            straight_len=float(path_cfg.get("straight_len", 15.0)),
         )
     raise ValueError(f"未知路径: {name}")
 

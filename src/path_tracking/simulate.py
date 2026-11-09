@@ -1,4 +1,4 @@
-"""闭环仿真循环。"""
+"""闭环仿真循环（v1.1：可选动力学植物 / 侧风 / 量测噪声）。"""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import numpy as np
 
 from .metrics import cross_track_error, heading_error, metric_pack, trajectory_frame
 from .path import Path, nearest_index
-from .vehicle import KinematicBicycle, VehicleState
+from .vehicle import DynamicBicycle, KinematicBicycle, VehicleState
 
 
 def simulate(
@@ -17,18 +17,42 @@ def simulate(
     init: dict | None = None,
     settle_s: float = 2.0,
     max_time: float | None = None,
+    plant: str = "kinematic",
+    wind_accel: float = 0.0,
+    meas_noise_std: float = 0.0,
+    noise_seed: int = 0,
+    dyn_cfg: dict | None = None,
 ) -> dict:
     """闭环仿真直到跑完路径或超时。
 
+    plant: "kinematic" | "dynamic"（2-DOF 线性轮胎动力学自行车）
+    wind_accel: 侧风等效横向加速度 [m/s^2]（动力学植物）
+    meas_noise_std: 控制器量测噪声（x/y/yaw/v 高斯白噪声标准差，yaw 为 rad）
     返回 dict: frame(DataFrame), metrics(dict), meta(dict)
     """
     dt = float(vehicle_cfg["dt"])
-    veh = KinematicBicycle(
-        wheelbase=float(vehicle_cfg["wheelbase"]),
-        max_steer=float(vehicle_cfg["max_steer"]),
-        max_steer_rate=float(vehicle_cfg["max_steer_rate"]),
-        dt=dt,
-    )
+    if plant == "dynamic":
+        dyn_cfg = dyn_cfg or {}
+        veh = DynamicBicycle(
+            wheelbase=float(vehicle_cfg["wheelbase"]),
+            max_steer=float(vehicle_cfg["max_steer"]),
+            max_steer_rate=float(vehicle_cfg["max_steer_rate"]),
+            dt=dt,
+            mass=float(dyn_cfg.get("mass", 1573.0)),
+            iz=float(dyn_cfg.get("iz", 2500.0)),
+            lf=float(dyn_cfg.get("lf", 1.2)),
+            lr=float(dyn_cfg.get("lr", 1.7)),
+            cf=float(dyn_cfg.get("cf", 80000.0)),
+            cr=float(dyn_cfg.get("cr", 80000.0)),
+            wind_accel=wind_accel,
+        )
+    else:
+        veh = KinematicBicycle(
+            wheelbase=float(vehicle_cfg["wheelbase"]),
+            max_steer=float(vehicle_cfg["max_steer"]),
+            max_steer_rate=float(vehicle_cfg["max_steer_rate"]),
+            dt=dt,
+        )
     init = init or {}
     veh.reset(init.get("x", path.x[0]), init.get("y", path.y[0]),
               init.get("yaw", path.yaw[0]), init.get("v", target_speed))
@@ -39,9 +63,20 @@ def simulate(
     n_max = int(max_time / dt)
     rec = {k: [] for k in ("t", "x", "y", "yaw", "v", "steer", "accel", "solve_ms")}
     ref_idx = 0
+    rng = np.random.default_rng(noise_seed)
 
     for i in range(n_max):
-        accel, steer, ref_idx, info = controller.compute(veh.state, path, target_speed, ref_idx, dt)
+        s_true = veh.state
+        if meas_noise_std > 0.0:
+            obs = VehicleState(
+                s_true.x + rng.normal(0, meas_noise_std),
+                s_true.y + rng.normal(0, meas_noise_std),
+                s_true.yaw + rng.normal(0, meas_noise_std),
+                s_true.v + rng.normal(0, meas_noise_std),
+            )
+        else:
+            obs = s_true
+        accel, steer, ref_idx, info = controller.compute(obs, path, target_speed, ref_idx, dt)
         s = veh.step(accel, steer, dt)
         rec["t"].append(i * dt)
         rec["x"].append(s.x)

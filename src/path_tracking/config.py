@@ -74,7 +74,9 @@ def _load_simple_yaml(text: str) -> dict:
         while len(stack) > 1 and indent <= stack[-1][0]:
             stack.pop()
         container = stack[-1][2]
-        if val.strip() == "":
+        # 值可能带行内注释：先剥注释再判断是否为空（空 → 嵌套 map/list）
+        val_core = val.split("#")[0].strip()
+        if val_core == "":
             nxt = lines[i + 1] if i + 1 < len(lines) else ""
             nxt_indent = len(nxt) - len(nxt.lstrip()) if nxt.strip() else 0
             if nxt.strip().startswith("- ") and nxt_indent > indent:

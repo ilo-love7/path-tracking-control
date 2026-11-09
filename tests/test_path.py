@@ -53,3 +53,23 @@ def test_build_path_factory():
     assert len(p) > 100
     p2 = build_path("circle", {"radius": 30.0, "arc_deg": 270.0, "center_x": 0.0, "center_y": 30.0})
     assert len(p2) > 100
+
+
+def test_clothoid_s_curve_shape():
+    from path_tracking.path import make_clothoid_s_curve
+    p = make_clothoid_s_curve(kappa_max=0.05, yaw_up=0.5, yaw_down=0.7, straight_len=15.0)
+    assert len(p) > 100
+    # 峰值曲率应接近 kappa_max
+    assert abs(np.max(np.abs(p.curvature)) - 0.05) < 0.01
+    # S 弯：航向先正后负，y 穿越两侧
+    assert np.max(p.yaw) > 0.2
+    assert np.min(p.yaw) < -0.2
+    assert np.max(p.y) > 1.0
+    assert np.min(p.y) < -1.0
+
+
+def test_clothoid_in_build_path():
+    p = build_path("clothoid_s", {"kappa_max": 0.05, "yaw_up": 0.5,
+                                  "yaw_down": 0.7, "straight_len": 15.0})
+    assert len(p) > 50
+    assert p.s[-1] > 80.0

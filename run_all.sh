@@ -3,7 +3,7 @@
 set -e
 cd "$(dirname "$0")"
 PY="${PYTHON:-D:/项目/venvs/flsoh-py312/Scripts/python.exe}"
-for s in 00_verify_env 01_comparison 02_animation; do
+for s in 00_verify_env 01_comparison 03_deepening 02_animation; do
   echo "======== $s ========"
   "$PY" "scripts/${s}.py"
 done
