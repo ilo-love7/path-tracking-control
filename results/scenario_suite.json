@@ -1,0 +1,953 @@
+{
+ "E7_scenarios": {
+  "dlc_off2.0": {
+   "20": {
+    "PurePursuit": {
+     "lat_rms": 0.004489264031309246,
+     "lat_max": 0.007660923733445313,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.02302458742416518,
+     "lat_max": 0.03540989346398525,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.0023370460629127104,
+     "lat_max": 0.0040592878326553275,
+     "fail": false
+    }
+   },
+   "40": {
+    "PurePursuit": {
+     "lat_rms": 0.004790020305907692,
+     "lat_max": 0.007629175111341511,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.019033622932892284,
+     "lat_max": 0.029493578807454037,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.017018083782260923,
+     "lat_max": 0.10121809181483095,
+     "fail": false
+    }
+   },
+   "60": {
+    "PurePursuit": {
+     "lat_rms": 0.005221329612077117,
+     "lat_max": 0.00961820159634362,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.014276113339874575,
+     "lat_max": 0.024313627704720883,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.048713885484374816,
+     "lat_max": 0.25673423812878954,
+     "fail": false
+    }
+   }
+  },
+  "dlc_off3.5": {
+   "20": {
+    "PurePursuit": {
+     "lat_rms": 0.0077271326650617984,
+     "lat_max": 0.013694265570491417,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.04079985443014142,
+     "lat_max": 0.06289092189869257,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.00395729120478263,
+     "lat_max": 0.007008333433068831,
+     "fail": false
+    }
+   },
+   "40": {
+    "PurePursuit": {
+     "lat_rms": 0.00810144004088091,
+     "lat_max": 0.015381906091947334,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.0334749098807932,
+     "lat_max": 0.05273375217805654,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.02369279664741876,
+     "lat_max": 0.11120725982534974,
+     "fail": false
+    }
+   },
+   "60": {
+    "PurePursuit": {
+     "lat_rms": 0.008095834011638527,
+     "lat_max": 0.013679664877027058,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.02392985635953528,
+     "lat_max": 0.04107311205503718,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.10575489365988436,
+     "lat_max": 0.531004149590495,
+     "fail": false
+    }
+   }
+  },
+  "dlc_off5.0": {
+   "20": {
+    "PurePursuit": {
+     "lat_rms": 0.01087696097036307,
+     "lat_max": 0.018791143734933825,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.05605088009791578,
+     "lat_max": 0.08524416370372526,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.005385173768471096,
+     "lat_max": 0.009976235830360829,
+     "fail": false
+    }
+   },
+   "40": {
+    "PurePursuit": {
+     "lat_rms": 0.011844684945925357,
+     "lat_max": 0.021200415592765722,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.049303874220393215,
+     "lat_max": 0.08469010654098899,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.03152621043435512,
+     "lat_max": 0.12108922169213096,
+     "fail": false
+    }
+   },
+   "60": {
+    "PurePursuit": {
+     "lat_rms": 0.01203917199675808,
+     "lat_max": 0.02322750841011738,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.03736399271436479,
+     "lat_max": 0.0733076091909902,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.08424817264050166,
+     "lat_max": 0.298731198509136,
+     "fail": false
+    }
+   }
+  },
+  "s_k0.02": {
+   "20": {
+    "PurePursuit": {
+     "lat_rms": 0.00740319217280918,
+     "lat_max": 0.014570571019814486,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.0449232322753833,
+     "lat_max": 0.07939829220817558,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.003869362223559703,
+     "lat_max": 0.008277894157055831,
+     "fail": false
+    }
+   },
+   "40": {
+    "PurePursuit": {
+     "lat_rms": 0.007757841341941378,
+     "lat_max": 0.01576978221931735,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.04242780338549407,
+     "lat_max": 0.0754733680173681,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.02112832796473329,
+     "lat_max": 0.09155859330481106,
+     "fail": false
+    }
+   },
+   "60": {
+    "PurePursuit": {
+     "lat_rms": 0.007509978090211308,
+     "lat_max": 0.014836278949952233,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.03970280866142244,
+     "lat_max": 0.07376252862432059,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.04001637536895931,
+     "lat_max": 0.30096779543418317,
+     "fail": false
+    }
+   }
+  },
+  "s_k0.05": {
+   "20": {
+    "PurePursuit": {
+     "lat_rms": 0.019075087456864176,
+     "lat_max": 0.03919225703943005,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.0968610874345447,
+     "lat_max": 0.17715753584783786,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.010359355078518344,
+     "lat_max": 0.021266763740653862,
+     "fail": false
+    }
+   },
+   "40": {
+    "PurePursuit": {
+     "lat_rms": 0.02014739222738561,
+     "lat_max": 0.043827673725432024,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.08405832039839546,
+     "lat_max": 0.15456344607422604,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.0454232091788406,
+     "lat_max": 0.10395832993709289,
+     "fail": false
+    }
+   },
+   "60": {
+    "PurePursuit": {
+     "lat_rms": 0.018324701947943847,
+     "lat_max": 0.039634662139332255,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.07313531813008924,
+     "lat_max": 0.15122044669917378,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.06642810642388784,
+     "lat_max": 0.29520358595532714,
+     "fail": false
+    }
+   }
+  },
+  "s_k0.10": {
+   "20": {
+    "PurePursuit": {
+     "lat_rms": 0.03962863910378168,
+     "lat_max": 0.08525981506452848,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.15834694376438518,
+     "lat_max": 0.30098664479901305,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.02145814250515547,
+     "lat_max": 0.04910346325123611,
+     "fail": false
+    }
+   },
+   "40": {
+    "PurePursuit": {
+     "lat_rms": 0.03920820019743073,
+     "lat_max": 0.08339847543380438,
+     "fail": false
+    },
+    "Stanley": {
+     "lat_rms": 0.11739462821370336,
+     "lat_max": 0.21484617998422456,
+     "fail": false
+    },
+    "MPC": {
+     "lat_rms": 0.13451929354950026,
+     "lat_max": 0.3948661993541895,
+     "fail": false
+    }
+   },
+   "60": {
+    "PurePursuit": {
+     "lat_rms": 14.495943412132734,
+     "lat_max": 34.337691286838435,
+     "fail": true
+    },
+    "Stanley": {
+     "lat_rms": 1.4901194471367145,
+     "lat_max": 2.9361771883240193,
+     "fail": true
+    },
+    "MPC": {
+     "lat_rms": 57.096924091122155,
+     "lat_max": 114.16292359675789,
+     "fail": true
+    }
+   }
+  }
+ },
+ "E8_schedule": {
+  "circle": {
+   "20": {
+    "const": {
+     "lat_rms": 0.13189635567102354,
+     "lat_max": 0.14262872063101723
+    },
+    "linear": {
+     "lat_rms": 0.13189635567102354,
+     "lat_max": 0.14262872063101723
+    },
+    "speed_inv": {
+     "lat_rms": 0.13189635567102354,
+     "lat_max": 0.14262872063101723
+    }
+   },
+   "40": {
+    "const": {
+     "lat_rms": 0.12159893551003237,
+     "lat_max": 0.14509034699900758
+    },
+    "linear": {
+     "lat_rms": 0.1291197134322083,
+     "lat_max": 0.1479119087254698
+    },
+    "speed_inv": {
+     "lat_rms": 0.13728635105030787,
+     "lat_max": 0.1486973437595985
+    }
+   },
+   "60": {
+    "const": {
+     "lat_rms": 0.10269349021267726,
+     "lat_max": 0.15029680148754657
+    },
+    "linear": {
+     "lat_rms": 0.11980517384486578,
+     "lat_max": 0.14976705923593417
+    },
+    "speed_inv": {
+     "lat_rms": 0.137984109273183,
+     "lat_max": 0.15462344510586898
+    }
+   }
+  },
+  "dlc": {
+   "20": {
+    "const": {
+     "lat_rms": 0.04079985443014142,
+     "lat_max": 0.06289092189869257
+    },
+    "linear": {
+     "lat_rms": 0.04079985443014142,
+     "lat_max": 0.06289092189869257
+    },
+    "speed_inv": {
+     "lat_rms": 0.04079985443014142,
+     "lat_max": 0.06289092189869257
+    }
+   },
+   "40": {
+    "const": {
+     "lat_rms": 0.0334749098807932,
+     "lat_max": 0.05273375217805654
+    },
+    "linear": {
+     "lat_rms": 0.03604046047400438,
+     "lat_max": 0.05680587107519326
+    },
+    "speed_inv": {
+     "lat_rms": 0.038530150082901886,
+     "lat_max": 0.05904941835713379
+    }
+   },
+   "60": {
+    "const": {
+     "lat_rms": 0.02392985635953528,
+     "lat_max": 0.04107311205503718
+    },
+    "linear": {
+     "lat_rms": 0.02988161387968282,
+     "lat_max": 0.051130052639644166
+    },
+    "speed_inv": {
+     "lat_rms": 0.03657134351450985,
+     "lat_max": 0.05757675944813187
+    }
+   }
+  }
+ },
+ "E9_envelope": {
+  "R15": {
+   "n00": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 0.04333597353664264,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.23137787995066078,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 0.024135944930510158,
+      "fail": false
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 3.867468851959412,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.1310160400114482,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 6.234463205394887,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 4.622192498104227,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.22087544781951027,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 32.22759462890975,
+      "fail": true
+     }
+    }
+   },
+   "n05": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 0.10799124425198181,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.41440950598705845,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 4.8805431023150545,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 6.587618592353217,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.4681405290832455,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 37.45630356784134,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 30.386405308450925,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.33874239608832424,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 33.98406607589569,
+      "fail": true
+     }
+    }
+   },
+   "n10": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 4.299917685892747,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.5545770452573305,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 4.467327295243474,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 3.6446260046351653,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.7043715272917345,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 38.11354937226653,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 21.585418141907475,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.8096819882664666,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 33.904186829786155,
+      "fail": true
+     }
+    }
+   },
+   "n20": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 4.332543458513364,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 1.0984780028376562,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 4.49620374230729,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 10.209917612918826,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.9737802943085345,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 11.765502072118636,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 12.106449602190484,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 1.1907939665489315,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 27.79769106639337,
+      "fail": true
+     }
+    }
+   }
+  },
+  "R30": {
+   "n00": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 0.022193732921410216,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.13189635567102354,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 0.011260485293242861,
+      "fail": false
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 0.022923822673937555,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.12159893551003237,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 0.09709882650684135,
+      "fail": false
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 0.020341112649367648,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.10269349021267726,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 0.18751841625927354,
+      "fail": false
+     }
+    }
+   },
+   "n05": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 4.679714529914196,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.2670802701607097,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 6.564382630099493,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 12.563504517335987,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.5007198130576499,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 28.984478966822003,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 18.049077522754455,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.9420835686589865,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 29.567149510495504,
+      "fail": true
+     }
+    }
+   },
+   "n10": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 4.744961407327767,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.4920961486648754,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 4.810857845810803,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 6.998432137410863,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.6996127933251638,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 14.252491583079149,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 13.940027568224318,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.7974617160816538,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 24.31355174113349,
+      "fail": true
+     }
+    }
+   },
+   "n20": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 5.425239268926625,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.6729217928600911,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 5.147333478196313,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 14.69968143545116,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 1.400392792276922,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 51.41352422693262,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 15.076997497160917,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 1.5503235366274577,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 38.037073992862446,
+      "fail": true
+     }
+    }
+   }
+  },
+  "R60": {
+   "n00": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 0.011190067941100638,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.06833193297081128,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 0.0056772229749295685,
+      "fail": false
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 0.011438615067861578,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.06735206370190376,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 0.052304072353427794,
+      "fail": false
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 0.01051191952745899,
+      "fail": false
+     },
+     "Stanley": {
+      "lat_rms": 0.06372855419475448,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 0.07905537973329782,
+      "fail": false
+     }
+    }
+   },
+   "n05": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 5.039595131426184,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.160036047098496,
+      "fail": false
+     },
+     "MPC": {
+      "lat_rms": 5.022803555049878,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 7.692171930458352,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.38415829426846054,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 47.320020132255706,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 12.63864799625083,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.6440552268325809,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 57.15155783058691,
+      "fail": true
+     }
+    }
+   },
+   "n10": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 5.351366971833903,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.3708744644102634,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 5.019337387784526,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 11.291700460812692,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.5203564006156386,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 16.316850947395892,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 12.118114587490854,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.9830581900457344,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 49.99748252275572,
+      "fail": true
+     }
+    }
+   },
+   "n20": {
+    "20": {
+     "PurePursuit": {
+      "lat_rms": 6.156090091044433,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 0.7586516211029991,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 6.425200182631884,
+      "fail": true
+     }
+    },
+    "40": {
+     "PurePursuit": {
+      "lat_rms": 10.14802149740454,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 1.635883816519037,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 16.58242822056454,
+      "fail": true
+     }
+    },
+    "60": {
+     "PurePursuit": {
+      "lat_rms": 19.44606828721119,
+      "fail": true
+     },
+     "Stanley": {
+      "lat_rms": 1.7641332031172208,
+      "fail": true
+     },
+     "MPC": {
+      "lat_rms": 37.89834227686074,
+      "fail": true
+     }
+    }
+   }
+  }
+ },
+ "E7_win_count": {
+  "MPC": 6,
+  "PurePursuit": 11,
+  "Stanley": 1
+ }
+}

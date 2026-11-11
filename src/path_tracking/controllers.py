@@ -14,6 +14,8 @@ from pathlib import Path as FsPath
 
 import numpy as np
 
+from .scheduling import stanley_gain_schedule
+
 from .path import Path, nearest_index
 from .vehicle import KinematicBicycle, VehicleState
 
@@ -77,6 +79,7 @@ class Stanley:
     max_steer: float = 0.7854
     wheelbase: float = 2.9
     curvature_ff: bool = False  # v1.1: 曲率前馈 atan(L·κ) + 后轴误差口径
+    k_schedule: str = "const"   # v1.2: const / linear / speed_inv（见 scheduling.py）
 
     def compute(self, state: VehicleState, path: Path, target_speed: float,
                 ref_idx: int, dt: float = 0.1):
@@ -89,7 +92,9 @@ class Stanley:
             e = dx * np.sin(state.yaw) - dy * np.cos(state.yaw)
             heading_err = path.yaw[idx] - state.yaw
             heading_err = np.arctan2(np.sin(heading_err), np.cos(heading_err))
-            steer = heading_err + np.arctan2(self.k * e, state.v + self.k_soft)
+            k_eff = stanley_gain_schedule(state.v, self.k, self.k_schedule,
+                                          k_soft=self.k_soft)
+            steer = heading_err + np.arctan2(k_eff * e, state.v + self.k_soft)
             steer += np.arctan(self.wheelbase * path.curvature[idx])
             steer = float(np.clip(steer, -self.max_steer, self.max_steer))
             accel = 1.0 * (target_speed - state.v)
@@ -104,7 +109,9 @@ class Stanley:
         e_front = dx * np.sin(state.yaw) - dy * np.cos(state.yaw)
         heading_err = path.yaw[idx] - state.yaw
         heading_err = np.arctan2(np.sin(heading_err), np.cos(heading_err))
-        steer = heading_err + np.arctan2(self.k * e_front, state.v + self.k_soft)
+        k_eff = stanley_gain_schedule(state.v, self.k, self.k_schedule,
+                                      k_soft=self.k_soft)
+        steer = heading_err + np.arctan2(k_eff * e_front, state.v + self.k_soft)
         steer = float(np.clip(steer, -self.max_steer, self.max_steer))
         accel = 1.0 * (target_speed - state.v)
         return accel, steer, idx, {"e_front": e_front, "heading_err": heading_err}

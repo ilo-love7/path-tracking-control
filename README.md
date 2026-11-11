@@ -2,7 +2,7 @@
 
 运动学自行车模型（Kong et al., IEEE IV 2015）下，**Pure Pursuit / Stanley / 非线性 MPC** 三类横向路径跟踪控制器统一对比：双移线 + 环形 + clothoid 变曲率路径 × 20/60 km/h 工况，跟踪精度、控制平滑度、计算耗时、鲁棒性全口径评测。
 
-> 博远线上科研提案 N4 ｜ 汽车/控制 ｜ 数值仿真 ｜ v1.1.0 ｜ 2026-11-09
+> 博远线上科研提案 N4 ｜ 汽车/控制 ｜ 数值仿真 ｜ v1.2.0 ｜ 2026-11-11
 
 ## 结果摘要（v1.0 基准）
 
@@ -26,12 +26,19 @@
 8. **模型失配警戒线**：2-DOF 动力学植物 + 高速环形，运动学 MPC 完全发散（82 m）、PP 发散（4.4 m），Stanley 1.5 m 最稳——优化型控制器放大失配，简单反馈保命。
 9. 自适应 horizon（MPC-A，预瞄距离恒定）全面差于固定 N=5，负结果如实报告。
 
+## v1.2 深化发现（43 项单测，180 次场景仿真）
+
+10. **场景族上的选型稳定性**（E7，fig21）：双移线横移 2.0/3.5/5.0 m × S 弯 κ_max 0.02/0.05/0.10 × 20/40/60 km/h——MPC 6 个胜场全部在 20 km/h，PP 11 个胜场覆盖全部 40/60 km/h 非失效格，速度反转翻转点钉在 **20–40 km/h**；κ_max=0.10+60 km/h 三者全灭（物理极限）。
+11. **Stanley 增益速度调度是负结果**（E8，fig22）：其误差随速度自然下降（−22~−41%），无「退化」可压平；linear/speed_inv 增强反馈反而恶化 6–54%。恒曲率误差的正解是曲率前馈（33×，v1.1）而非增益调度——如实入档。
+12. **失效包络**（E9，fig23）：噪声 × 速度 × 曲率 108 格中 26 格通过（Stanley 11 > PP 8 > MPC 7）；σ=5 cm 仅 Stanley 低速弯存活 3 格，σ≥10 cm 全灭；**Stanley 软失效**（fail 时 ≤1.8 m 有界）vs **PP/MPC 硬发散**（5–57 m）。
+13. 部署包络读法：R≤15 m 限速 ≤20 km/h；σ≥5 cm 时限速 ≤20 km/h 且 R≥30 m；σ≥10 cm 必须先上观测滤波/滞回（未做项）。
+
 ## 运行
 
 ```bash
 pip install -r requirements.txt
-bash run_all.sh        # 00 校验 → 01 对比 → 03 深化 → 02 动画
-python -m pytest tests/ -q   # 36 项
+bash run_all.sh        # 00 校验 → 01 对比 → 03 深化 → 04 场景套件 → 02 动画
+python -m pytest tests/ -q   # 43 项
 ```
 
 PythonRobotics 参考实现（参数对齐基准）：`pure_pursuit.py / stanley_controller.py / model_predictive_speed_and_steer_control.py`（AtsushiSakai/PythonRobotics，7 万+ star）。
@@ -41,11 +48,12 @@ PythonRobotics 参考实现（参数对齐基准）：`pure_pursuit.py / stanley
 ```
 configs/config.yaml    车辆参数/动力学参数/路径/控制器超参/速度档
 src/path_tracking/     vehicle(运动学+动力学自行车) / path(样条+clothoid) / metrics
-                       controllers(PP/Stanley/Stanley+FF/MPC/MPC-A) / simulate(扰动注入) / plots
-scripts/00-03          校验 → 对比实验 → 深化实验 → 动画
-tests/                 36 项单测
-reports/               基准评测报告-N4.md（§3 深化实验）/ 工作记录-N4.md
-results/               comparison_metrics.json + deepening_metrics.json（78 行）
+                       controllers(PP/Stanley/Stanley+FF/MPC/MPC-A) / scheduling(增益调度)
+                       simulate(扰动注入) / plots
+scripts/00-04          校验 → 对比实验 → 深化实验 → 场景套件(E7–E9) → 动画
+tests/                 43 项单测
+reports/               基准评测报告-N4.md（§3 v1.1/v1.2 深化实验）/ 工作记录-N4.md
+results/               comparison + deepening + scenario_suite.json（270 行指标）
 figures/               轨迹/误差/消融图 + GIF 动画
 ```
 
