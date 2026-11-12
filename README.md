@@ -2,7 +2,7 @@
 
 运动学自行车模型（Kong et al., IEEE IV 2015）下，**Pure Pursuit / Stanley / 非线性 MPC** 三类横向路径跟踪控制器统一对比：双移线 + 环形 + clothoid 变曲率路径 × 20/60 km/h 工况，跟踪精度、控制平滑度、计算耗时、鲁棒性全口径评测。
 
-> 博远线上科研提案 N4 ｜ 汽车/控制 ｜ 数值仿真 ｜ v1.2.0 ｜ 2026-11-11
+> 博远线上科研提案 N4 ｜ 汽车/控制 ｜ 数值仿真 ｜ v1.3.0 ｜ 2026-11-12
 
 ## 结果摘要（v1.0 基准）
 
@@ -33,12 +33,18 @@
 12. **失效包络**（E9，fig23）：噪声 × 速度 × 曲率 108 格中 26 格通过（Stanley 11 > PP 8 > MPC 7）；σ=5 cm 仅 Stanley 低速弯存活 3 格，σ≥10 cm 全灭；**Stanley 软失效**（fail 时 ≤1.8 m 有界）vs **PP/MPC 硬发散**（5–57 m）。
 13. 部署包络读法：R≤15 m 限速 ≤20 km/h；σ≥5 cm 时限速 ≤20 km/h 且 R≥30 m；σ≥10 cm 必须先上观测滤波/滞回（未做项）。
 
+## v1.3 深化发现（30 项新单测，432+108+108 次场景仿真）
+
+14. **观测滤波+滞回 = 反直觉负结果**（E26，fig27）：EMA 滤波（α=0.3）全灭 0/108——相位滞后毁稳定裕度；滞回单独零效果——失效主因是噪声直接污染控制量而非索引跳动；滤波+滞回只帮 Stanley（11→13）。**朴素滤波不是工程解**，正解是 Kalman/速度规划/传感器降噪。
+15. **非线性轮胎 = 双刃剑**（E27，fig28）：饱和轮胎（Pacejka-lite）救了已发散格（MPC R15/40: 45.7→4.3 m）但毁了边界格（Stanley R15/60: 2.8→25.9 m）；μ 敏感性非单调（μ=1.2 反而让 MPC 更差）。
+16. **速度规划消除 PP 噪声死穴**（E28，fig29）：安全速度剖面（曲率+噪声自适应）使 PP 从 8/27 到 **9/9 全通过**（lat_rms 7.05→0.048 m）；Stanley 8/9；MPC 5/9（需配合滤波）。**零硬件成本的第一道防线**。
+
 ## 运行
 
 ```bash
 pip install -r requirements.txt
-bash run_all.sh        # 00 校验 → 01 对比 → 03 深化 → 04 场景套件 → 02 动画
-python -m pytest tests/ -q   # 43 项
+bash run_all.sh        # 00 校验 → 01 对比 → 03 深化 → 04 场景套件 → 05-07 v1.3 → 02 动画
+python -m pytest tests/ -q   # 73 项
 ```
 
 PythonRobotics 参考实现（参数对齐基准）：`pure_pursuit.py / stanley_controller.py / model_predictive_speed_and_steer_control.py`（AtsushiSakai/PythonRobotics，7 万+ star）。

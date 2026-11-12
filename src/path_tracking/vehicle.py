@@ -177,3 +177,59 @@ class DynamicBicycle:
     def state_vector(self) -> np.ndarray:
         return np.array([self.state.x, self.state.y, self.state.v, self.state.yaw,
                          self.vy, self.r])
+
+
+class NonlinearDynamicBicycle(DynamicBicycle):
+    """Pacejka-lite 饱和轮胎动力学自行车（v1.3）。
+
+    与 DynamicBicycle 的唯一区别：侧偏力从线性 Fy = C·α 改为饱和曲线
+        Fy = Fy_max · tanh(C·α / Fy_max)
+    其中 Fy_max = μ·Fz（静态轴荷分配 Fz_f = m·g·lr/L，Fz_r = m·g·lf/L）。
+    小侧偏角（|C·α| << Fy_max）退化为线性；大侧偏角饱和在 μ·Fz。
+    """
+
+    def __init__(self, *args, mu: float = 0.9, g: float = 9.81, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mu = float(mu)
+        self.g = float(g)
+        L = self.lf + self.lr
+        self._Fz_f = self.m * self.g * self.lr / L
+        self._Fz_r = self.m * self.g * self.lf / L
+        self._Fyf_max = self.mu * self._Fz_f
+        self._Fyr_max = self.mu * self._Fz_r
+
+    def step(self, accel: float, steer: float, dt: float | None = None) -> VehicleState:
+        dt = self.dt if dt is None else dt
+        steer = self._clip_steer(steer, dt)
+        self.prev_steer = steer
+
+        def f(s: np.ndarray) -> np.ndarray:
+            x, y, v, yaw, vy, r = s
+            vx = max(v, 0.5)
+            alpha_f = steer - np.arctan2(vy + self.lf * r, vx)
+            alpha_r = -np.arctan2(vy - self.lr * r, vx)
+            # Pacejka-lite 饱和
+            fyf = self._Fyf_max * np.tanh(self.Cf * alpha_f / self._Fyf_max)
+            fyr = self._Fyr_max * np.tanh(self.Cr * alpha_r / self._Fyr_max)
+            return np.array([
+                v * np.cos(yaw) - vy * np.sin(yaw),
+                v * np.sin(yaw) + vy * np.cos(yaw),
+                accel,
+                r,
+                (fyf + fyr) / self.m - v * r + self.wind_accel,
+                (self.lf * fyf - self.lr * fyr) / self.Iz,
+            ])
+
+        s0 = np.array([self.state.x, self.state.y, self.state.v, self.state.yaw,
+                       self.vy, self.r])
+        k1 = f(s0)
+        k2 = f(s0 + 0.5 * dt * k1)
+        k3 = f(s0 + 0.5 * dt * k2)
+        k4 = f(s0 + dt * k3)
+        s_next = s0 + dt / 6.0 * (k1 + 2 * k2 + 2 * k3 + k4)
+
+        self.state = VehicleState(float(s_next[0]), float(s_next[1]),
+                                  float(s_next[3]), float(s_next[2]))
+        self.vy = float(s_next[4])
+        self.r = float(s_next[5])
+        return self.state
